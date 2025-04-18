@@ -1,0 +1,21 @@
+# 仮想環境
+venv/
+
+# 一時ファイル
+*.pyc
+__pycache__/
+
+# ビルドアーティファクト
+*.log
+*.bak
+*.swp
+
+# 出力ファイル（生成されたファイル）
+*.zip
+*.pdf
+*.png
+*.tex
+
+# IDEやエディタの設定ファイル（VSCode、Sublime Textなど）
+.vscode/
+.idea/
