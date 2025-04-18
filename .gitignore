@@ -19,3 +19,7 @@ __pycache__/
 # IDEやエディタの設定ファイル（VSCode、Sublime Textなど）
 .vscode/
 .idea/
+
+# アップロードファイル（一時保存ディレクトリ）
+static/uploads/*
+!static/uploads/.gitkeep
