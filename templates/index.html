@@ -1,16 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graphviz Generator</title>
+    <title>PFT グラフ生成</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Graphviz Graph Generator</h1>
-    <form method="POST">
-        <label for="dot_code">Dot Code:</label><br>
-        <textarea id="dot_code" name="dot_code" rows="10" cols="30"></textarea><br><br>
-        <button type="submit">Generate Graph</button>
-    </form>
+    <div class="container">
+        <h1>PFT グラフ生成</h1>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST">
+            <!-- シンボル選択 -->
+            <label for="alphabet">シンボル（複数選択可）</label>
+            <select id="alphabet" name="alphabet" multiple>
+                {% for s in symbols %}
+                    <option value="{{ s }}" {% if s in request.form.getlist('alphabet') %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- 周期 -->
+            <label for="phase">周期（phase）</label>
+            <input type="number" id="phase" name="phase" value="{{ request.form.get('phase', 2) }}" min="2" max="10">
+
+            <!-- 禁止語長 -->
+            <label for="f_len">禁止語長（f_len）</label>
+            <input type="number" id="f_len" name="f_len" value="{{ request.form.get('f_len', 2) }}" min="1" max="10">
+
+            <!-- 禁止語（複数選択） -->
+            <label for="fwords">禁止語（複数選択可）</label>
+            <select id="fwords" name="fwords" multiple>
+                {% if fword_all %}
+                    {% for fw in fword_all %}
+                        <option value="{{ fw }}" {% if fw in request.form.getlist('fwords') %}selected{% endif %}>{{ fw }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+
+            <!-- 縮尺 -->
+            <label for="x_scale">縮尺 x</label>
+            <input type="number" step="0.05" id="x_scale" name="x_scale" value="{{ request.form.get('x_scale', 1.0) }}" min="0.2" max="2.0">
+
+            <label for="y_scale">縮尺 y</label>
+            <input type="number" step="0.05" id="y_scale" name="y_scale" value="{{ request.form.get('y_scale', 1.0) }}" min="0.2" max="2.0">
+
+            <input type="submit" value="グラフ生成">
+        </form>
+    </div>
 </body>
 </html>
