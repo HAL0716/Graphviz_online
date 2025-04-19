@@ -79,23 +79,25 @@ def generate_graph_files(dot_code: str) -> None:
 # ----------------------------------------
 @app.route("/", methods=["GET", "POST"])
 def index():
+    # フォームの初期値を設定
+    alphabet = request.form.getlist('alphabet') if request.method == 'POST' else request.args.getlist('alphabet')
+    if not alphabet:
+        alphabet = list(SYMBOLS)[:2]  # デフォルトで最初の2つのシンボルを使用
+
+    phase = int(request.form.get('phase', 2)) if request.method == 'POST' else int(request.args.get('phase', 2))
+    f_len = int(request.form.get('f_len', 2)) if request.method == 'POST' else int(request.args.get('f_len', 2))
+    fwords = request.form.getlist('fwords') if request.method == 'POST' else request.args.getlist('fwords')
+    if not fwords:
+        fwords = [''.join(p) for p in product(alphabet, repeat=f_len)][0:1]  # デフォルト値
+
+    x_scale = float(request.form.get('x_scale', 1.0)) if request.method == 'POST' else float(request.args.get('x_scale', 1.0))
+    y_scale = float(request.form.get('y_scale', 1.0)) if request.method == 'POST' else float(request.args.get('y_scale', 1.0))
+
+    fword_all = [''.join(p) for p in product(alphabet, repeat=f_len)] if alphabet else []
+
     if request.method == "POST":
         try:
             clear_uploads()
-
-            # フォームから値取得
-            alphabet = request.form.getlist('alphabet')  # フォームから選択されたシンボル
-            if not alphabet:  # alphabetが空の場合
-                alphabet = list(SYMBOLS)[:2]  # デフォルトで最初の2つのシンボルを使用
-
-            phase = int(request.form['phase']) if request.form.get('phase') else 2  # デフォルト値 2
-            f_len = int(request.form['f_len']) if request.form.get('f_len') else 2  # デフォルト値 2
-            fwords = request.form.getlist('fwords')
-            if not fwords:  # fwordsが空の場合、f_lenに基づいて最初の禁止語を設定
-                fwords = [''.join(p) for p in product(alphabet, repeat=f_len)][0:1]
-
-            x_scale = float(request.form['x_scale']) if request.form.get('x_scale') else 1.0  # デフォルト値 1.0
-            y_scale = float(request.form['y_scale']) if request.form.get('y_scale') else 1.0  # デフォルト値 1.0
 
             # PFT構築とdotコード生成
             pft = PeriodicFiniteType(phase, f_len, fwords, True)
@@ -106,29 +108,20 @@ def index():
             return send_file(get_upload_path(ZIP_FILE), as_attachment=True)
 
         except ValueError as e:
-            return render_template('index.html', error=f"エラー: {e}", symbols=SYMBOLS)
+            return render_template('index.html', error=f"エラー: {e}", symbols=SYMBOLS,
+                                   alphabet=alphabet, phase=phase, f_len=f_len,
+                                   fwords=fwords, x_scale=x_scale, y_scale=y_scale, fword_all=fword_all)
         except subprocess.CalledProcessError as e:
-            return render_template('index.html', error="コマンド実行エラー", symbols=SYMBOLS)
+            return render_template('index.html', error="コマンド実行エラー", symbols=SYMBOLS,
+                                   alphabet=alphabet, phase=phase, f_len=f_len,
+                                   fwords=fwords, x_scale=x_scale, y_scale=y_scale, fword_all=fword_all)
         except Exception as e:
-            return render_template('index.html', error=f"予期せぬエラー: {e}", symbols=SYMBOLS)
-
-    # GETリクエスト時の処理
-    alphabet = request.args.getlist('alphabet')  # URLパラメータの値を取得（GETリクエスト）
-    if not alphabet:
-        alphabet = list(SYMBOLS)[:2]  # デフォルトで最初の2つのシンボルを使用
-
-    phase = int(request.args.get('phase', 2))  # phaseのデフォルト値を設定
-    f_len = int(request.args.get('f_len', 2))  # f_lenのデフォルト値を設定
-    fword_all = [''.join(p) for p in product(alphabet, repeat=f_len)] if alphabet else []
-
-    # fwordsのデフォルト値として最初の禁止語を1つ選択
-    fwords = [''.join(p) for p in product(alphabet, repeat=f_len)][0:1]
-
-    x_scale = float(request.args.get('x_scale', 1.0))  # x_scaleのデフォルト値を設定
-    y_scale = float(request.args.get('y_scale', 1.0))  # y_scaleのデフォルト値を設定
+            return render_template('index.html', error=f"予期せぬエラー: {e}", symbols=SYMBOLS,
+                                   alphabet=alphabet, phase=phase, f_len=f_len,
+                                   fwords=fwords, x_scale=x_scale, y_scale=y_scale, fword_all=fword_all)
 
     return render_template(
-        'index.html',
+        'home/index.html',
         symbols=SYMBOLS,
         fword_all=fword_all,
         alphabet=alphabet,
