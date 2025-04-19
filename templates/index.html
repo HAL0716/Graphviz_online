@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>PFTグラフ生成</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .left, .right {
+            flex: 1;
+        }
+        img {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>PFT グラフ生成アプリ</h1>
+    <div class="container">
+        <div class="left">
+            <form id="pft-form">
+                <label>シンボル:</label>
+                <select name="symbols" id="symbols" multiple class="select2" style="width: 100%">
+                    {% for s in symbols %}
+                        <option value="{{ s }}" {% if s in ['0', '1'] %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>周期:</label>
+                <input type="number" name="period" id="period" min="2" max="10" value="2" required>
+
+                <label>禁止語長:</label>
+                <input type="number" name="forbidden_length" id="forbidden_length" min="2" max="10" value="2" required>
+
+                <label>禁止語:</label>
+                <select name="forbidden_words" id="forbidden_words" multiple class="select2" style="width: 100%"></select>
+            </form>
+        </div>
+        <div class="right">
+            <img id="graph-image" src="" style="display: none;" alt="生成されたグラフ">
+            <br>
+            <a id="download-link" href="{{ url_for('download_image') }}" download style="display: none;">
+                <button>保存</button>
+            </a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2();
+
+            function updateForbiddenWords(callback = null) {
+                const symbols = $('#symbols').val();
+                const length = $('#forbidden_length').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/get_forbidden_words',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ symbols: symbols, length: length }),
+                    success: function (data) {
+                        const $fw = $('#forbidden_words');
+                        $fw.empty();
+                        data.forEach(function (word, idx) {
+                            $fw.append(new Option(word, word, idx === 0, idx === 0));
+                        });
+                        $fw.trigger('change');
+                        if (callback) callback();
+                    }
+                });
+            }
+
+            function updateGraph() {
+                const payload = {
+                    symbols: $('#symbols').val(),
+                    period: $('#period').val(),
+                    forbidden_length: $('#forbidden_length').val(),
+                    forbidden_words: $('#forbidden_words').val()
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/generate',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (response) {
+                        $('#graph-image').attr('src', response.image_url).show();
+                        $('#download-link').show();
+                    }
+                });
+            }
+
+            $('#symbols, #forbidden_length').on('change', function () {
+                updateForbiddenWords(updateGraph);
+            });
+
+            $('#period, #forbidden_words').on('change', updateGraph);
+
+            updateForbiddenWords(updateGraph); // 初期読み込み
+        });
+    </script>
+</body>
+</html>

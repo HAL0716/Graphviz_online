@@ -1,141 +1,111 @@
+from flask import Flask, render_template, request, send_file, jsonify
+from src import PeriodicFiniteType
 import os
 import subprocess
-from flask import Flask, render_template, request, send_file
-from itertools import product
+import itertools
+from pdf2image import convert_from_bytes
 from dot2tex import dot2tex
-from src import PeriodicFiniteType
 
-# ----------------------------------------
-# 定数
-# ----------------------------------------
-SYMBOLS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+app = Flask(__name__)
 UPLOAD_DIR = 'static/uploads'
-DOT_FILE = 'graph.dot'
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# ファイル名
 PNG_FILE = 'graph.png'
 TEX_FILE = 'graph.tex'
 PDF_FILE = 'graph.pdf'
-ZIP_FILE = 'graph_files.zip'
 
-# ----------------------------------------
-# Flaskアプリ設定
-# ----------------------------------------
-app = Flask(__name__)
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-# ----------------------------------------
-# ユーティリティ関数
-# ----------------------------------------
-def clear_uploads():
-    """UPLOAD_DIR の中身をすべて削除"""
-    for filename in os.listdir(UPLOAD_DIR):
-        file_path = os.path.join(UPLOAD_DIR, filename)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
 
 def get_upload_path(filename: str) -> str:
     """UPLOAD_DIR 内のフルパスを返す"""
     return os.path.join(UPLOAD_DIR, filename)
 
-def process_tex(tex_content: str) -> str:
-    """LaTeXコードを整形（documentclass変更 & enlargethispage削除）"""
-    tex_content = tex_content.replace(
-        r'\documentclass{article}',
-        r'\documentclass[border=5pt]{standalone}'
+
+def generate_forbidden_words(symbols, length):
+    """禁止語の生成"""
+    if not symbols or not length:
+        return []
+    return [''.join(p) for p in itertools.product(symbols, repeat=int(length))]
+
+
+def process_tex(tex_code: str) -> str:
+    """LaTeXコードを整形"""
+    tex_code = tex_code.replace(
+        r'\documentclass{article}', r'\documentclass[border=5pt]{standalone}'
     )
     return '\n'.join(
-        line for line in tex_content.splitlines()
+        line for line in tex_code.splitlines()
         if not line.strip().startswith(r'\enlargethispage')
     )
 
-def generate_graph_files(dot_code: str) -> None:
-    """DOT, PNG, TeX, PDFファイルの生成"""
-    dot_path = get_upload_path(DOT_FILE)
-    with open(dot_path, 'w') as f:
-        f.write(dot_code)
 
-    # PNG生成
-    png_path = get_upload_path(PNG_FILE)
-    subprocess.run(['dot', '-Tpng', dot_path, '-o', png_path], check=True)
-
-    # TeX生成
-    tex_path = get_upload_path(TEX_FILE)
-    with open(tex_path, 'w') as f:
+def generate_tex(dot_code: str) -> None:
+    """TeXファイルを生成"""
+    with open(get_upload_path(TEX_FILE), 'w') as f:
         f.write(process_tex(dot2tex(dot_code)))
 
-    # PDF生成
-    subprocess.run(['pdflatex', TEX_FILE], cwd=UPLOAD_DIR, check=True)
 
-    # ZIPファイル作成
-    zip_path = get_upload_path(ZIP_FILE)
-    subprocess.run([
-        'zip', '-r', zip_path,
-        get_upload_path(DOT_FILE),
-        get_upload_path(PNG_FILE),
-        get_upload_path(PDF_FILE)
-    ], check=True)
-
-# ----------------------------------------
-# ルーティング
-# ----------------------------------------
-@app.route("/", methods=["GET", "POST"])
-def index():
-    # フォームの初期値を設定
-    alphabet = request.form.getlist('alphabet') if request.method == 'POST' else request.args.getlist('alphabet')
-    if not alphabet:
-        alphabet = list(SYMBOLS)[:2]  # デフォルトで最初の2つのシンボルを使用
-
-    phase = int(request.form.get('phase', 2)) if request.method == 'POST' else int(request.args.get('phase', 2))
-    f_len = int(request.form.get('f_len', 2)) if request.method == 'POST' else int(request.args.get('f_len', 2))
-    fwords = request.form.getlist('fwords') if request.method == 'POST' else request.args.getlist('fwords')
-    if not fwords:
-        fwords = [''.join(p) for p in product(alphabet, repeat=f_len)][0:1]  # デフォルト値
-
-    x_scale = float(request.form.get('x_scale', 1.0)) if request.method == 'POST' else float(request.args.get('x_scale', 1.0))
-    y_scale = float(request.form.get('y_scale', 1.0)) if request.method == 'POST' else float(request.args.get('y_scale', 1.0))
-
-    fword_all = [''.join(p) for p in product(alphabet, repeat=f_len)] if alphabet else []
-
-    if request.method == "POST":
-        try:
-            clear_uploads()
-
-            # PFT構築とdotコード生成
-            pft = PeriodicFiniteType(phase, f_len, fwords, True)
-            pft.set_adj_list(alphabet)
-            dot_code = pft.dot
-
-            generate_graph_files(dot_code)
-            return send_file(get_upload_path(ZIP_FILE), as_attachment=True)
-
-        except ValueError as e:
-            return render_template('index.html', error=f"エラー: {e}", symbols=SYMBOLS,
-                                   alphabet=alphabet, phase=phase, f_len=f_len,
-                                   fwords=fwords, x_scale=x_scale, y_scale=y_scale, fword_all=fword_all)
-        except subprocess.CalledProcessError as e:
-            return render_template('index.html', error="コマンド実行エラー", symbols=SYMBOLS,
-                                   alphabet=alphabet, phase=phase, f_len=f_len,
-                                   fwords=fwords, x_scale=x_scale, y_scale=y_scale, fword_all=fword_all)
-        except Exception as e:
-            return render_template('index.html', error=f"予期せぬエラー: {e}", symbols=SYMBOLS,
-                                   alphabet=alphabet, phase=phase, f_len=f_len,
-                                   fwords=fwords, x_scale=x_scale, y_scale=y_scale, fword_all=fword_all)
-
-    return render_template(
-        'home/index.html',
-        symbols=SYMBOLS,
-        fword_all=fword_all,
-        alphabet=alphabet,
-        phase=phase,
-        f_len=f_len,
-        fwords=fwords,
-        x_scale=x_scale,
-        y_scale=y_scale,
-        error="",
-        request=request  # テンプレートで form の状態を維持するため
+def generate_pdf() -> None:
+    """PDFファイルの生成"""
+    result = subprocess.run(
+        ['pdflatex', TEX_FILE], cwd=UPLOAD_DIR, check=False, capture_output=True
     )
+    if result.returncode != 0:
+        raise RuntimeError(f"PDF generation failed: {result.stderr.decode()}")
 
-# ----------------------------------------
-# 実行
-# ----------------------------------------
-if __name__ == "__main__":
+
+def convert_pdf_to_png() -> None:
+    """PDFをPNGに変換"""
+    pdf_path = get_upload_path(PDF_FILE)
+    png_path = get_upload_path(PNG_FILE)
+    
+    with open(pdf_path, 'rb') as f:
+        images = convert_from_bytes(f.read())
+        images[0].save(png_path, 'PNG')
+
+
+@app.route('/', methods=['GET'])
+def index():
+    symbols = list("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    return render_template('index.html', symbols=symbols)
+
+
+@app.route('/get_forbidden_words', methods=['POST'])
+def get_forbidden_words_route():
+    symbols = request.json.get('symbols', [])
+    length = int(request.json.get('length', 2))
+    words = generate_forbidden_words(symbols, length)
+    return jsonify(words)
+
+
+@app.route('/generate', methods=['POST'])
+def generate_graph():
+    data = request.json
+    selected_symbols = data.get('symbols', [])
+    period = int(data.get('period', 2))
+    forbidden_length = int(data.get('forbidden_length', 2))
+    forbidden_words = data.get('forbidden_words', [])
+
+    pft = PeriodicFiniteType(period, forbidden_length, forbidden_words, True)
+    pft.set_adj_list(selected_symbols)
+    dot_code = pft.dot
+
+    try:
+        # LaTeX の生成と PDF への変換
+        generate_tex(dot_code)
+        generate_pdf()
+        convert_pdf_to_png()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({"image_url": f"/static/uploads/graph.png?{os.urandom(4).hex()}"})
+
+
+@app.route('/download')
+def download_image():
+    path = get_upload_path(PNG_FILE)
+    return send_file(path, as_attachment=True)
+
+
+if __name__ == '__main__':
     app.run(debug=True)
