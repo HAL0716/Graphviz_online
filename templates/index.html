@@ -5,47 +5,52 @@
     <title>PFTグラフ生成</title>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        .container {
-            display: flex;
-            gap: 20px;
-        }
-        .left, .right {
-            flex: 1;
-        }
-        img {
-            max-width: 100%;
-        }
-    </style>
 </head>
 <body>
     <h1>PFT グラフ生成アプリ</h1>
     <div class="container">
         <div class="left">
             <form id="pft-form">
-                <label>シンボル:</label>
-                <select name="symbols" id="symbols" multiple class="select2" style="width: 100%">
-                    {% for s in symbols %}
-                        <option value="{{ s }}" {% if s in ['0', '1'] %}selected{% endif %}>{{ s }}</option>
-                    {% endfor %}
-                </select>
+                <div class="form-container">
+                    <div class="input-wrapper">
+                        <label>シンボル</label>
+                        <select name="symbols" id="symbols" multiple class="select2" style="width: 100%">
+                            {% for s in symbols %}
+                                <option value="{{ s }}" {% if s in ['0', '1'] %}selected{% endif %}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-                <label>周期:</label>
-                <input type="number" name="period" id="period" min="2" max="10" value="2" required>
+                    <div class="input-wrapper">
+                        <label>周期</label>
+                        <div class="slider-container">
+                            <span id="period-value">2</span>
+                            <input type="range" name="period" id="period" min="2" max="10" value="2">
+                        </div>
+                    </div>
 
-                <label>禁止語長:</label>
-                <input type="number" name="forbidden_length" id="forbidden_length" min="2" max="10" value="2" required>
+                    <div class="input-wrapper">
+                        <label>禁止語長</label>
+                        <div class="slider-container">
+                            <span id="forbidden_length-value">2</span>
+                            <input type="range" name="forbidden_length" id="forbidden_length" min="2" max="10" value="2">
+                        </div>
+                    </div>
 
-                <label>禁止語:</label>
-                <select name="forbidden_words" id="forbidden_words" multiple class="select2" style="width: 100%"></select>
+                    <div class="input-wrapper">
+                        <label>禁止語</label>
+                        <select name="forbidden_words" id="forbidden_words" multiple class="select2" style="width: 100%"></select>
+                    </div>
+                </div>
             </form>
         </div>
         <div class="right">
-            <img id="graph-image" src="" style="display: none;" alt="生成されたグラフ">
-            <br>
-            <a id="download-link" href="{{ url_for('download_image') }}" download style="display: none;">
-                <button>保存</button>
-            </a>
+            <div class="graph-wrapper">
+                <img id="graph-image" src="" style="display: none;" alt="生成されたグラフ">
+                <a id="download-link" href="{{ url_for('download_image') }}" download style="display: none;">
+                    <button>保存</button>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -95,6 +100,17 @@
                     }
                 });
             }
+
+            // スライダーの値を表示
+            $('#period').on('input', function () {
+                $('#period-value').text($(this).val());
+                updateGraph();
+            });
+
+            $('#forbidden_length').on('input', function () {
+                $('#forbidden_length-value').text($(this).val());
+                updateGraph();
+            });
 
             $('#symbols, #forbidden_length').on('change', function () {
                 updateForbiddenWords(updateGraph);
