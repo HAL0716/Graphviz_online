@@ -38,12 +38,34 @@ class PeriodicFiniteType:
             for src in self.__nodes if len(src.label) < self.__f_len
         }
 
-    @property
-    def dot(self) -> str:
-        if (not self.__adj_list):
+    def set_node_params(self, wid: float, hgt: float, xsp: float, ysp: float):
+        """ノードのサイズと間隔の設定を行う"""
+        self.wid = wid  # ノードの幅
+        self.hgt = hgt  # ノードの高さ
+        self.xsp = xsp  # ノード間のX間隔
+        self.ysp = ysp  # ノード間のY間隔
+
+    def dot(self, params: dict = None) -> str:
+        """DOT形式のグラフ生成"""
+        def get_param(params: dict, key: str, default: float) -> float:
+            """params 辞書から値を取得するヘルパー関数"""
+            if params and key in params and str(params[key]).strip():
+                return float(params[key])
+            return default
+
+        if not self.__adj_list:
             self.set_adj_list()
 
         try:
+            # ノードのパラメータを取得
+            wid = get_param(params, "width", 0.6)  # ノードの幅
+            hgt = get_param(params, "height", 0.4)  # ノードの高さ
+            xsp = get_param(params, "xspacing", 1.0)  # ノード間のX間隔
+            ysp = get_param(params, "yspacing", 1.0)  # ノード間のY間隔
+
+            # set_node_paramsを使ってノードのパラメータを設定
+            self.set_node_params(wid, hgt, xsp, ysp)
+
             def build_node_layers() -> dict[int, list[Node]]:
                 """ラベルの長さごとにノードを整理し、各層をソート"""
                 layers = defaultdict(list)
@@ -94,13 +116,13 @@ class PeriodicFiniteType:
                 "digraph G {",
                 "\tlayout=neato;",
                 "\tsplines=true;",
-                "\tnode [shape=ellipse, width=0.6, height=0.4, fixedsize=true];"
+                "\tnode [shape=ellipse, width={}, height={}, fixedsize=true];".format(self.wid, self.hgt)  # ノードのサイズ設定
             ]
             lines.append("")
 
             for node, idx in idx_map.items():
                 x, y = pos_map[node]
-                lines.append(f'\t{idx} [texlbl="${node.texlbl}$", pos="{x},{y}!"];')
+                lines.append(f'\t{idx} [texlbl="${node.texlbl}$", pos="{x},{y}!", width={self.wid}, height={self.hgt}];')  # ノードの位置とサイズを反映
             lines.append("")
 
             for src, dsts in self.__adj_list.items():
@@ -109,7 +131,7 @@ class PeriodicFiniteType:
             lines.append("}")
 
             return "\n".join(lines)
-        
+
         except Exception as e:
             print(f"[DOT Error] {e}")
             return ""

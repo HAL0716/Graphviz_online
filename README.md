@@ -1,8 +1,3 @@
-もちろんです！以下、**コピペしてすぐ使える** `README.md` の内容です👇
-
----
-
-```markdown
 # PFT グラフ生成アプリ
 
 選択したシンボルと禁止語から周期的有限型（PFT）グラフを生成し、グラフ画像を表示・保存できる Flask アプリケーションです。
@@ -38,14 +33,6 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 
 ```bash
 pip install -r requirements.txt
-```
-
-#### `requirements.txt` の例:
-
-```
-Flask
-pdf2image
-dot2tex
 ```
 
 ---

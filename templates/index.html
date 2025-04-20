@@ -42,6 +42,28 @@
                         <select name="forbidden_words" id="forbidden_words" multiple class="select2" style="width: 100%"></select>
                     </div>
                 </div>
+
+                <details style="margin-top: 20px;">
+                    <summary>詳細設定</summary>
+                    <div class="form-container" style="margin-top: 10px;">
+                        <div class="input-wrapper">
+                            <label for="width">ノードの幅</label>
+                            <input type="number" id="width" name="width" min="0.5" max="5.0" step="0.1" value="0.6">
+                        </div>
+                        <div class="input-wrapper">
+                            <label for="height">ノードの高さ</label>
+                            <input type="number" id="height" name="height" min="0.5" max="5.0" step="0.1" value="0.4">
+                        </div>
+                        <div class="input-wrapper">
+                            <label for="xspacing">ノード間隔X</label>
+                            <input type="number" id="xspacing" name="xspacing" min="0.5" max="3.0" step="0.1" value="1.0">
+                        </div>
+                        <div class="input-wrapper">
+                            <label for="yspacing">ノード間隔Y</label>
+                            <input type="number" id="yspacing" name="yspacing" min="0.5" max="3.0" step="0.1" value="1.0">
+                        </div>
+                    </div>
+                </details>                
             </form>
         </div>
         <div class="right">
@@ -59,11 +81,11 @@
     <script>
         $(document).ready(function () {
             $('.select2').select2();
-
+    
             function updateForbiddenWords(callback = null) {
                 const symbols = $('#symbols').val();
                 const length = $('#forbidden_length').val();
-
+    
                 $.ajax({
                     type: 'POST',
                     url: '/get_forbidden_words',
@@ -80,15 +102,19 @@
                     }
                 });
             }
-
+    
             function updateGraph() {
                 const payload = {
                     symbols: $('#symbols').val(),
                     period: $('#period').val(),
                     forbidden_length: $('#forbidden_length').val(),
-                    forbidden_words: $('#forbidden_words').val()
+                    forbidden_words: $('#forbidden_words').val(),
+                    width: $('#width').val(),
+                    height: $('#height').val(),
+                    xspacing: $('#xspacing').val(),
+                    yspacing: $('#yspacing').val()
                 };
-
+    
                 $.ajax({
                     type: 'POST',
                     url: '/generate',
@@ -100,26 +126,30 @@
                     }
                 });
             }
-
+    
             // スライダーの値を表示
             $('#period').on('input', function () {
                 $('#period-value').text($(this).val());
                 updateGraph();
             });
-
+    
             $('#forbidden_length').on('input', function () {
                 $('#forbidden_length-value').text($(this).val());
                 updateGraph();
             });
-
+    
+            // 変更されたら禁止語を更新し、グラフを更新
             $('#symbols, #forbidden_length').on('change', function () {
                 updateForbiddenWords(updateGraph);
             });
-
+    
             $('#period, #forbidden_words').on('change', updateGraph);
-
+    
+            // 詳細設定（幅・高さ・X間隔・Y間隔）の変更でもグラフを更新
+            $('#width, #height, #xspacing, #yspacing').on('input', updateGraph);
+    
             updateForbiddenWords(updateGraph); // 初期読み込み
         });
-    </script>
+    </script>    
 </body>
 </html>
