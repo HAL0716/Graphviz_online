@@ -41,6 +41,11 @@
                         <label>禁止語</label>
                         <select name="forbidden_words" id="forbidden_words" multiple class="select2" style="width: 100%"></select>
                     </div>
+
+                    <div class="input-wrapper">
+                        <label><input type="checkbox" id="essentialize" name="essentialize"> 本質化</label>
+                        <label><input type="checkbox" id="minimize" name="minimize" disabled> 最小化</label>
+                    </div>
                 </div>
 
                 <details style="margin-top: 20px;">
@@ -48,11 +53,11 @@
                     <div class="form-container" style="margin-top: 10px;">
                         <div class="input-wrapper">
                             <label for="width">ノードの幅</label>
-                            <input type="number" id="width" name="width" min="0.5" max="5.0" step="0.1" value="0.6">
+                            <input type="number" id="width" name="width" min="0.3" max="3.0" step="0.1" value="0.6">
                         </div>
                         <div class="input-wrapper">
                             <label for="height">ノードの高さ</label>
-                            <input type="number" id="height" name="height" min="0.5" max="5.0" step="0.1" value="0.4">
+                            <input type="number" id="height" name="height" min="0.2" max="3.0" step="0.1" value="0.4">
                         </div>
                         <div class="input-wrapper">
                             <label for="xspacing">ノード間隔X</label>
@@ -63,38 +68,45 @@
                             <input type="number" id="yspacing" name="yspacing" min="0.5" max="3.0" step="0.1" value="1.0">
                         </div>
                     </div>
-                </details>                
+                </details>
             </form>
         </div>
+
         <div class="right">
             <div class="graph-wrapper">
-                <img id="graph-image" src="" style="display: none;" alt="生成されたグラフ">
-                <a id="download-link" href="{{ url_for('download_image') }}" download style="display: none;">
-                    <button>保存</button>
-                </a>
+                <img id="graph-image" src="" alt="生成されたグラフ">
+
+                <div id="download-options" style="margin-top: 1em; display: flex; gap: 1em; align-items: center;">
+                    <label><input type="checkbox" value="dot" checked>dot</label>
+                    <label><input type="checkbox" value="tex" checked>tex</label>
+                    <label><input type="checkbox" value="pdf" checked>pdf</label>
+                    <label><input type="checkbox" value="png" checked>png</label>
+                    <button id="download-zip" style="display: none;">保存</button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function () {
             $('.select2').select2();
-    
+
             function updateForbiddenWords(callback = null) {
                 const symbols = $('#symbols').val();
                 const length = $('#forbidden_length').val();
-    
+
                 $.ajax({
                     type: 'POST',
                     url: '/get_forbidden_words',
                     contentType: 'application/json',
-                    data: JSON.stringify({ symbols: symbols, length: length }),
+                    data: JSON.stringify({ symbols, length }),
                     success: function (data) {
                         const $fw = $('#forbidden_words');
                         $fw.empty();
-                        data.forEach(function (word, idx) {
+                        data.forEach((word, idx) => {
                             $fw.append(new Option(word, word, idx === 0, idx === 0));
                         });
                         $fw.trigger('change');
@@ -102,9 +114,35 @@
                     }
                 });
             }
-    
+
             function updateGraph() {
                 const payload = {
+                    symbols: $('#symbols').val(),
+                    period: $('#period').val(),
+                    forbidden_length: $('#forbidden_length').val(),
+                    forbidden_words: $('#forbidden_words').val(),
+                    essentialize: $('#essentialize').is(':checked'),
+                    minimize: $('#minimize').is(':checked'),
+                    width: $('#width').val(),
+                    height: $('#height').val(),
+                    xspacing: $('#xspacing').val(),
+                    yspacing: $('#yspacing').val()
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/generate',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (response) {
+                        $('#graph-image').attr('src', response.image_url).show();
+                        $('#download-zip').show();
+                    }
+                });
+            }
+
+            function saveSettings() {
+                const settings = {
                     symbols: $('#symbols').val(),
                     period: $('#period').val(),
                     forbidden_length: $('#forbidden_length').val(),
@@ -114,41 +152,63 @@
                     xspacing: $('#xspacing').val(),
                     yspacing: $('#yspacing').val()
                 };
-    
-                $.ajax({
-                    type: 'POST',
-                    url: '/generate',
-                    contentType: 'application/json',
-                    data: JSON.stringify(payload),
-                    success: function (response) {
-                        $('#graph-image').attr('src', response.image_url).show();
-                        $('#download-link').show();
-                    }
-                });
+                localStorage.setItem('pftSettings', JSON.stringify(settings));
             }
-    
-            // スライダーの値を表示
+
+            function loadSettings() {
+                const saved = localStorage.getItem('pftSettings');
+                if (!saved) return;
+                const s = JSON.parse(saved);
+                $('#period').val(s.period).trigger('input');
+                $('#forbidden_length').val(s.forbidden_length).trigger('input');
+                $('#width').val(s.width);
+                $('#height').val(s.height);
+                $('#xspacing').val(s.xspacing);
+                $('#yspacing').val(s.yspacing);
+                $('#symbols').val(s.symbols).trigger('change');
+                setTimeout(() => {
+                    $('#forbidden_words').val(s.forbidden_words).trigger('change');
+                }, 300);
+            }
+
+            $('#symbols, #period, #forbidden_length, #forbidden_words, #width, #height, #xspacing, #yspacing')
+                .on('change input', saveSettings);
+
             $('#period').on('input', function () {
                 $('#period-value').text($(this).val());
                 updateGraph();
             });
-    
+
             $('#forbidden_length').on('input', function () {
                 $('#forbidden_length-value').text($(this).val());
                 updateGraph();
             });
-    
-            // 変更されたら禁止語を更新し、グラフを更新
+
             $('#symbols, #forbidden_length').on('change', function () {
                 updateForbiddenWords(updateGraph);
             });
-    
-            $('#period, #forbidden_words').on('change', updateGraph);
-    
-            // 詳細設定（幅・高さ・X間隔・Y間隔）の変更でもグラフを更新
-            $('#width, #height, #xspacing, #yspacing').on('input', updateGraph);
-    
-            updateForbiddenWords(updateGraph); // 初期読み込み
+
+            $('#essentialize').on('change', function () {
+                const essentialOn = $(this).is(':checked');
+                $('#minimize').prop('disabled', !essentialOn);
+                if (!essentialOn) $('#minimize').prop('checked', false);
+                updateGraph();
+            });
+
+            $('#period, #forbidden_words, #width, #height, #xspacing, #yspacing, #minimize').on('change input', updateGraph);
+
+            $('#download-zip').on('click', function () {
+                const selected = $('#download-options input[type=checkbox]:checked')
+                    .map(function () { return this.value; })
+                    .get();
+
+                if (selected.length === 0) return alert('少なくとも1つ拡張子を選んでください');
+                const query = selected.map(ext => `ext=${ext}`).join('&');
+                window.location.href = `/download?${query}`;
+            });
+
+            loadSettings();
+            updateForbiddenWords(updateGraph);
         });
     </script>    
 </body>

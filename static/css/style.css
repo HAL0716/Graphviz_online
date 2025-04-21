@@ -1,5 +1,5 @@
 /* ================================
-   全体の基本スタイル
+   基本スタイル
 ================================ */
 body {
     font-family: Arial, sans-serif;
@@ -7,73 +7,68 @@ body {
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* 縦方向の中央寄せ */
-    align-items: center;     /* 横方向の中央寄せ */
+    align-items: center;
 }
 
 /* ================================
-   コンテナのレイアウト
+   レイアウトコンテナ
 ================================ */
 .container {
     display: flex;
-    justify-content: space-between;
     flex-wrap: wrap;
     gap: 20px;
-    max-width: 80%;      /* 全体幅の80% */
-    margin-top: 20px;    /* タイトルとの間に余白 */
+    justify-content: space-between;
+    max-width: 80%;
+    margin-top: 20px;
 }
 
-/* 左カラム（パラメータ入力） */
+/* 左カラム（フォーム） */
 .left {
     flex: 1;
-    background-color: white;
+    background-color: #fff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* 右カラム（画像表示） */
+/* 右カラム（グラフ表示） */
 .right {
     flex: 2;
-    background-color: white;
+    background-color: #fff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* ================================
-   フォーム関連
+   フォーム全体
 ================================ */
 .form-container {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    align-items: flex-start;
-    justify-content: flex-start;
+    width: 100%;
 }
 
-/* 各入力項目のカテゴリ名と入力欄 */
-.form-container .input-wrapper {
+.input-wrapper {
     display: flex;
     align-items: center;
     gap: 10px;
     width: 100%;
 }
 
-/* ラベル（カテゴリ名） */
-.form-container label {
+.input-wrapper label {
     width: 150px;
     text-align: center;
     font-weight: bold;
     margin: 0;
 }
 
-/* 入力フィールド共通スタイル */
-.form-container input[type="number"],
-.form-container select {
+input[type="number"],
+select,
+.select2-container {
     flex-grow: 1;
     padding: 5px;
-    margin: 0;
 }
 
 /* ================================
@@ -87,44 +82,58 @@ body {
 }
 
 .slider-container span {
+    width: 20px;
     font-weight: bold;
-    width: 20px; /* 数値表示のスペース */
 }
 
-.slider-container input[type="range"] {
+input[type="range"] {
     width: 100%;
 }
 
 /* ================================
-   グラフ画像と保存ボタン
+   グラフ・保存
 ================================ */
-img {
-    max-width: 100%;
-}
-
-/* 画像とボタンを縦並び＋中央＆右寄せ */
 .graph-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: center;    /* 画像を中央寄せ */
+    align-items: center;
     width: 100%;
-    position: relative;
 }
 
-#download-link {
-    align-self: flex-end;   /* ボタンは右寄せ */
-    margin-top: 10px;
+img {
+    max-width: 100%;
+    height: auto;
 }
 
-/* ボタンスタイル */
+/* ダウンロードセクション（チェック＋ボタン） */
+#download-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    align-items: center;
+}
+
+#download-options label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#download-zip {
+    margin-left: 1em;
+}
+
+/* ================================
+   ボタン共通スタイル
+================================ */
 button {
     padding: 10px 15px;
     background-color: #4CAF50;
     color: white;
     border: none;
-    cursor: pointer;
     border-radius: 5px;
     font-size: 16px;
+    cursor: pointer;
 }
 
 button:hover {
@@ -132,15 +141,15 @@ button:hover {
 }
 
 /* ================================
-   レスポンシブ対応（モバイル）
+   レスポンシブ対応
 ================================ */
 @media (max-width: 768px) {
     .container {
-        flex-direction: column; /* 縦並びに切り替え */
+        flex-direction: column;
     }
 
-    .left, .right {
-        min-width: 100%;
+    .left,
+    .right {
         max-width: 100%;
     }
 
@@ -150,5 +159,15 @@ button:hover {
 
     .slider-container {
         gap: 5px;
+    }
+
+    #download-options {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #download-zip {
+        margin-left: 0;
+        margin-top: 10px;
     }
 }
