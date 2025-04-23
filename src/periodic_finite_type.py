@@ -179,10 +179,10 @@ class PeriodicFiniteType:
         def get(k, default): 
             return float(params[k]) if params and k in params and str(params[k]).strip() else default
 
-        self.wid = get("width", 0.6)
-        self.hgt = get("height", 0.4)
-        self.xsp = get("xspacing", 1.0)
-        self.ysp = get("yspacing", 1.0)
+        self.wid = get("nodeWidth", 0.6)
+        self.hgt = get("nodeHeight", 0.4)
+        self.xsp = get("spacingX", 1.0)
+        self.ysp = get("spacingY", 1.0)
 
     # === 4. dot 出力構築用の補助メソッド ===
     def __build_pos_map(self) -> dict[Node, tuple[float, float]]:

@@ -68,8 +68,8 @@ def convert_pdf_to_png() -> None:
 def build_pft_from_data(data) -> PeriodicFiniteType:
     alphabet = data.get('symbols', [])
     period = int(data.get('period', 2))
-    forbidden_length = int(data.get('forbidden_length', 2))
-    forbidden_words = data.get('forbidden_words', [])
+    forbidden_length = int(data.get('forbiddenLength', 2))
+    forbidden_words = data.get('forbiddenWords', [])
 
     pft = PeriodicFiniteType(alphabet, period, forbidden_length, forbidden_words)
     pft.set_adj_list()
@@ -100,12 +100,15 @@ def generate_graph():
     try:
         data = request.json
         pft = build_pft_from_data(data)
+        if data.get('essentialize', False):
+            pft.update_essential()
+        if data.get('minimize', False):
+            pft.update_minimize()
         dot_code = pft.dot(data)
 
         generate_tex(dot_code)
         generate_pdf()
         convert_pdf_to_png()
-        # clean_aux_files()
 
         return jsonify({"image_url": f"/static/uploads/graph.png?{os.urandom(4).hex()}"})
 

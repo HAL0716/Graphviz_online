@@ -1,173 +1,169 @@
-/* ================================
-   基本スタイル
-================================ */
-body {
+/* 基本スタイル */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
     font-family: Arial, sans-serif;
-    margin: 20px;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    overflow: hidden;
 }
 
-/* ================================
-   レイアウトコンテナ
-================================ */
+h1 {
+    padding: 0px 20px;
+}
+
 .container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: space-between;
-    max-width: 80%;
-    margin-top: 20px;
+    height: calc(100vh - 60px);
 }
 
-/* 左カラム（フォーム） */
-.left {
-    flex: 1;
-    background-color: #fff;
+.side, .main {
+    padding: 0px 20px;
+    box-sizing: border-box;
+}
+
+.side {
+    width: 400px;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+/* メインセクション */
+.main {
+    display: flex;
+    flex-direction: column;  /* 縦並びにする */
+    align-items: flex-start; /* デフォルトで左寄せ */
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* 右カラム（グラフ表示） */
-.right {
-    flex: 2;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+/* サイド内要素の共通スタイル */
+.side label, .side span {
+    font-size: 20px;
+    font-weight: normal;
 }
 
-/* ================================
-   フォーム全体
-================================ */
-.form-container {
+.side input[type="range"],
+.side select {
+    width: 100%;
+}
+
+.side > div:not(:last-child) {
+    margin-bottom: 20px;
+}
+
+/* オプショングループ（mode, file-format など） */
+.option-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: center;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.option-label {
+    padding-left: 0.5rem;
+    width: 70px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.option-group-vertical {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    width: 100%;
+    gap: 16px;
 }
-
-.input-wrapper {
-    display: flex;
+  
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
     align-items: center;
-    gap: 10px;
-    width: 100%;
 }
-
-.input-wrapper label {
-    width: 150px;
-    text-align: center;
-    font-weight: bold;
-    margin: 0;
-}
-
-input[type="number"],
-select,
-.select2-container {
-    flex-grow: 1;
-    padding: 5px;
-}
-
-/* ================================
-   スライダー
-================================ */
-.slider-container {
+  
+.input-row .option-item {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
+    flex-direction: column;
 }
 
-.slider-container span {
+/* トグルボタン */
+.toggle-button-2 {
+    display: inline-block;
+    position: relative;
+    width: 60px;
+    height: 30px;
+    border-radius: 50px;
+    border: 3px solid #dddddd;
+    box-sizing: content-box;
+    cursor: pointer;
+    transition: border-color .4s;
+    flex-shrink: 0;
+}
+
+.toggle-button-2:has(:checked) {
+    border-color: #4bd865;
+}
+
+.toggle-button-2::after {
+    position: absolute;
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
     width: 20px;
-    font-weight: bold;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #dddddd;
+    content: '';
+    transition: left .4s;
 }
 
-input[type="range"] {
-    width: 100%;
+.toggle-button-2:has(:checked)::after {
+    left: 35px;
+    background-color: #4bd865;
 }
 
-/* ================================
-   グラフ・保存
-================================ */
-.graph-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
+.toggle-button-2 input {
+    display: none;
 }
 
-img {
-    max-width: 100%;
-    height: auto;
-}
-
-/* ダウンロードセクション（チェック＋ボタン） */
-#download-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1em;
-    align-items: center;
-}
-
-#download-options label {
+/* ラベル全体共通 */
+label {
+    font-size: 16px;
     display: flex;
     align-items: center;
-    gap: 5px;
 }
 
-#download-zip {
-    margin-left: 1em;
+/* 画像のスタイル */
+#graph-image {
+    max-width: 100%;      /* 画像の横幅を親要素に合わせて最大化 */
+    max-height: 80vh;     /* 画像の高さを画面の80%に制限 */
+    object-fit: contain;  /* 縦横比を保ちながら画像が収まるように調整 */
+    margin-bottom: 20px;  /* 画像とボタンの間にスペース */
 }
 
-/* ================================
-   ボタン共通スタイル
-================================ */
-button {
-    padding: 10px 15px;
-    background-color: #4CAF50;
+/* 保存ボタンのスタイル */
+#save-btn {
+    width: 120px;
+    height: 50px;
+    border-radius: 30px;  /* 丸みを増して柔らかい印象に */
+    background-color: #4CAF50;  /* 明るい緑色 */
     color: white;
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
     cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s ease, transform 0.3s ease;  /* スムーズなトランジション */
+    margin-left: auto; /* 右寄せ */
 }
 
-button:hover {
-    background-color: #45a049;
+#save-btn:hover {
+    background-color: #45a049;  /* 少し暗い緑に */
+    transform: scale(1.05);  /* ホバー時にボタンが少し大きくなる */
 }
 
-/* ================================
-   レスポンシブ対応
-================================ */
-@media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-    }
-
-    .left,
-    .right {
-        max-width: 100%;
-    }
-
-    .form-container {
-        gap: 10px;
-    }
-
-    .slider-container {
-        gap: 5px;
-    }
-
-    #download-options {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    #download-zip {
-        margin-left: 0;
-        margin-top: 10px;
-    }
+#save-btn:active {
+    transform: scale(1);  /* クリック時に元のサイズに戻す */
 }

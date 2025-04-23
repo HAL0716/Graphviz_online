@@ -1,215 +1,221 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>PFTグラフ生成</title>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PFT Graphics</title>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>PFT グラフ生成アプリ</h1>
-    <div class="container">
-        <div class="left">
-            <form id="pft-form">
-                <div class="form-container">
-                    <div class="input-wrapper">
-                        <label>シンボル</label>
-                        <select name="symbols" id="symbols" multiple class="select2" style="width: 100%">
-                            {% for s in symbols %}
-                                <option value="{{ s }}" {% if s in ['0', '1'] %}selected{% endif %}>{{ s }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+  <h1>PFT Graphics</h1>
+  <div class="container">
+    <div class="side">
+      <h2>パラメータ</h2>
+      
+      <div>
+        <label for="symbols">シンボル数 : <span id="symbol-count">2</span></label>
+        <select id="symbols" name="symbols[]" multiple="multiple">
+          {% for symbol in symbols %}
+            <option value="{{ symbol }}">{{ symbol }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-                    <div class="input-wrapper">
-                        <label>周期</label>
-                        <div class="slider-container">
-                            <span id="period-value">2</span>
-                            <input type="range" name="period" id="period" min="2" max="10" value="2">
-                        </div>
-                    </div>
+      <div>
+        <label for="period">周期 : <span id="period-value">2</span></label>
+        <input type="range" id="period" min="2" max="10" value="2">
+      </div>
 
-                    <div class="input-wrapper">
-                        <label>禁止語長</label>
-                        <div class="slider-container">
-                            <span id="forbidden_length-value">2</span>
-                            <input type="range" name="forbidden_length" id="forbidden_length" min="2" max="10" value="2">
-                        </div>
-                    </div>
+      <div>
+        <label for="forbidden-length">禁止語長 : <span id="forbidden-value">2</span></label>
+        <input type="range" id="forbidden-length" min="2" max="10" value="2">
+      </div>
 
-                    <div class="input-wrapper">
-                        <label>禁止語</label>
-                        <select name="forbidden_words" id="forbidden_words" multiple class="select2" style="width: 100%"></select>
-                    </div>
+      <div>
+        <label for="forbidden-words">禁止語数 : <span id="forbidden-count">1</span></label>
+        <select id="forbidden-words" name="forbidden-words[]" multiple="multiple"></select>
+      </div>
 
-                    <div class="input-wrapper">
-                        <label><input type="checkbox" id="essentialize" name="essentialize"> 本質化</label>
-                        <label><input type="checkbox" id="minimize" name="minimize" disabled> 最小化</label>
-                    </div>
-                </div>
+      <h2>描画設定</h2>
 
-                <details style="margin-top: 20px;">
-                    <summary>詳細設定</summary>
-                    <div class="form-container" style="margin-top: 10px;">
-                        <div class="input-wrapper">
-                            <label for="width">ノードの幅</label>
-                            <input type="number" id="width" name="width" min="0.3" max="3.0" step="0.1" value="0.6">
-                        </div>
-                        <div class="input-wrapper">
-                            <label for="height">ノードの高さ</label>
-                            <input type="number" id="height" name="height" min="0.2" max="3.0" step="0.1" value="0.4">
-                        </div>
-                        <div class="input-wrapper">
-                            <label for="xspacing">ノード間隔X</label>
-                            <input type="number" id="xspacing" name="xspacing" min="0.5" max="3.0" step="0.1" value="1.0">
-                        </div>
-                        <div class="input-wrapper">
-                            <label for="yspacing">ノード間隔Y</label>
-                            <input type="number" id="yspacing" name="yspacing" min="0.5" max="3.0" step="0.1" value="1.0">
-                        </div>
-                    </div>
-                </details>
-            </form>
+      <div class="option-group">
+        <div class="option-item">
+          <label class="option-label" for="essentialize">本質化</label>
+          <label class="toggle-button-2">
+            <input type="checkbox" id="essentialize" value="essentialize" />
+          </label>
+        </div>
+        <div class="option-item">
+          <label class="option-label" for="minimize">最小化</label>
+          <label class="toggle-button-2">
+            <input type="checkbox" id="minimize" value="minimize" />
+          </label>
+        </div>
+      </div>
+
+      <div class="option-group-vertical">
+        <label>ノードの大きさ</label>
+        <div class="input-row">
+          <div class="option-item">
+            <label class="option-label">縦: <span id="node-h-value">0.4</span></label>
+            <input type="range" id="node-h" min="0.2" max="1.0" step="0.1" value="0.4">
+          </div>
+          <div class="option-item">
+            <label class="option-label">横: <span id="node-w-value">0.6</span></label>
+            <input type="range" id="node-w" min="0.2" max="2.0" step="0.1" value="0.6">
+          </div>
         </div>
 
-        <div class="right">
-            <div class="graph-wrapper">
-                <img id="graph-image" src="" alt="生成されたグラフ">
-
-                <div id="download-options" style="margin-top: 1em; display: flex; gap: 1em; align-items: center;">
-                    <label><input type="checkbox" value="dot" checked>dot</label>
-                    <label><input type="checkbox" value="tex" checked>tex</label>
-                    <label><input type="checkbox" value="pdf" checked>pdf</label>
-                    <label><input type="checkbox" value="png" checked>png</label>
-                    <button id="download-zip" style="display: none;">保存</button>
-                </div>
-            </div>
+        <label>ノードの間隔</label>
+        <div class="input-row">
+          <div class="option-item">
+            <label class="option-label">縦: <span id="space-y-value">1.0</span></label>
+            <input type="range" id="space-y" min="0.2" max="2.0" step="0.1" value="1.0">
+          </div>
+          <div class="option-item">
+            <label class="option-label">横: <span id="space-x-value">1.0</span></label>
+            <input type="range" id="space-x" min="0.2" max="2.0" step="0.1" value="1.0">
+          </div>
         </div>
+      </div>
+
+      <h2>保存形式</h2>
+      <div class="option-group">
+        {% for fmt in ['dot', 'tex', 'pdf', 'png'] %}
+        <div class="option-item">
+          <label class="option-label" for="{{ fmt }}">{{ fmt }}</label>
+          <label class="toggle-button-2">
+            <input type="checkbox" id="{{ fmt }}" value="{{ fmt }}" checked/>
+          </label>
+        </div>
+        {% endfor %}
+      </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('.select2').select2();
+    <div class="main">
+      <h2>グラフ</h2>
+      <img id="graph-image" src="" alt="生成されたグラフ" style="max-width: 100%; height: auto;" />
+      <button id="save-btn">保存</button>
+    </div>
+  </div>
 
-            function updateForbiddenWords(callback = null) {
-                const symbols = $('#symbols').val();
-                const length = $('#forbidden_length').val();
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#symbols, #forbidden-words').select2({ placeholder: '選択してください', width: '100%' });
+      $('#symbols').val(['0', '1']).trigger('change');
+      $('#period, #forbidden-length').val(2);
+      $('#period-value').text('2');
+      $('#forbidden-value').text('2');
 
-                $.ajax({
-                    type: 'POST',
-                    url: '/get_forbidden_words',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ symbols, length }),
-                    success: function (data) {
-                        const $fw = $('#forbidden_words');
-                        $fw.empty();
-                        data.forEach((word, idx) => {
-                            $fw.append(new Option(word, word, idx === 0, idx === 0));
-                        });
-                        $fw.trigger('change');
-                        if (callback) callback();
-                    }
-                });
+      function generateGraph() {
+        const data = {
+          symbols: $('#symbols').val(),
+          period: $('#period').val(),
+          forbiddenLength: $('#forbidden-length').val(),
+          forbiddenWords: $('#forbidden-words').val(),
+          essentialize: $('#essentialize').is(':checked'),
+          minimize: $('#minimize').is(':checked'),
+          nodeHeight: $('#node-h').val(),
+          nodeWidth: $('#node-w').val(),
+          spacingY: $('#space-y').val(),
+          spacingX: $('#space-x').val()
+        };
+
+        $.ajax({
+          url: '/generate',
+          type: 'POST',
+          contentType: 'application/json',
+          dataType: 'json',
+          data: JSON.stringify(data),
+          success: function (res) {
+            if (res.image_url) {
+              $('#graph-image').attr('src', res.image_url);
+            } else {
+              console.error('画像生成エラー:', res.error);
             }
-
-            function updateGraph() {
-                const payload = {
-                    symbols: $('#symbols').val(),
-                    period: $('#period').val(),
-                    forbidden_length: $('#forbidden_length').val(),
-                    forbidden_words: $('#forbidden_words').val(),
-                    essentialize: $('#essentialize').is(':checked'),
-                    minimize: $('#minimize').is(':checked'),
-                    width: $('#width').val(),
-                    height: $('#height').val(),
-                    xspacing: $('#xspacing').val(),
-                    yspacing: $('#yspacing').val()
-                };
-
-                $.ajax({
-                    type: 'POST',
-                    url: '/generate',
-                    contentType: 'application/json',
-                    data: JSON.stringify(payload),
-                    success: function (response) {
-                        $('#graph-image').attr('src', response.image_url).show();
-                        $('#download-zip').show();
-                    }
-                });
-            }
-
-            function saveSettings() {
-                const settings = {
-                    symbols: $('#symbols').val(),
-                    period: $('#period').val(),
-                    forbidden_length: $('#forbidden_length').val(),
-                    forbidden_words: $('#forbidden_words').val(),
-                    width: $('#width').val(),
-                    height: $('#height').val(),
-                    xspacing: $('#xspacing').val(),
-                    yspacing: $('#yspacing').val()
-                };
-                localStorage.setItem('pftSettings', JSON.stringify(settings));
-            }
-
-            function loadSettings() {
-                const saved = localStorage.getItem('pftSettings');
-                if (!saved) return;
-                const s = JSON.parse(saved);
-                $('#period').val(s.period).trigger('input');
-                $('#forbidden_length').val(s.forbidden_length).trigger('input');
-                $('#width').val(s.width);
-                $('#height').val(s.height);
-                $('#xspacing').val(s.xspacing);
-                $('#yspacing').val(s.yspacing);
-                $('#symbols').val(s.symbols).trigger('change');
-                setTimeout(() => {
-                    $('#forbidden_words').val(s.forbidden_words).trigger('change');
-                }, 300);
-            }
-
-            $('#symbols, #period, #forbidden_length, #forbidden_words, #width, #height, #xspacing, #yspacing')
-                .on('change input', saveSettings);
-
-            $('#period').on('input', function () {
-                $('#period-value').text($(this).val());
-                updateGraph();
-            });
-
-            $('#forbidden_length').on('input', function () {
-                $('#forbidden_length-value').text($(this).val());
-                updateGraph();
-            });
-
-            $('#symbols, #forbidden_length').on('change', function () {
-                updateForbiddenWords(updateGraph);
-            });
-
-            $('#essentialize').on('change', function () {
-                const essentialOn = $(this).is(':checked');
-                $('#minimize').prop('disabled', !essentialOn);
-                if (!essentialOn) $('#minimize').prop('checked', false);
-                updateGraph();
-            });
-
-            $('#period, #forbidden_words, #width, #height, #xspacing, #yspacing, #minimize').on('change input', updateGraph);
-
-            $('#download-zip').on('click', function () {
-                const selected = $('#download-options input[type=checkbox]:checked')
-                    .map(function () { return this.value; })
-                    .get();
-
-                if (selected.length === 0) return alert('少なくとも1つ拡張子を選んでください');
-                const query = selected.map(ext => `ext=${ext}`).join('&');
-                window.location.href = `/download?${query}`;
-            });
-
-            loadSettings();
-            updateForbiddenWords(updateGraph);
+          },
+          error: function () {
+            alert('グラフ生成中にエラーが発生しました');
+          }
         });
-    </script>    
+      }
+
+      function updateCounts() {
+        $('#symbol-count').text($('#symbols').val()?.length || 0);
+        $('#forbidden-count').text($('#forbidden-words').val()?.length || 0);
+        generateGraph();
+      }
+
+      function updateForbiddenWords() {
+        const payload = {
+          symbols: $('#symbols').val(),
+          length: $('#forbidden-length').val()
+        };
+
+        $.ajax({
+          url: '/get_forbidden_words',
+          type: 'POST',
+          contentType: 'application/json',
+          dataType: 'json',
+          data: JSON.stringify(payload),
+          success: function (data) {
+            const $fw = $('#forbidden-words').empty();
+            data.forEach(word => $fw.append(new Option(word, word)));
+            $fw.val([data[0]]).trigger('change');
+            updateCounts();
+          },
+          error: function () {
+            alert('禁止語の取得に失敗しました');
+          }
+        });
+      }
+
+      function bindSlider(id, valueId) {
+        $(`#${id}`).on('input', function () {
+          $(`#${valueId}`).text(this.value);
+          generateGraph();
+        });
+      }
+
+      bindSlider('period', 'period-value');
+      bindSlider('forbidden-length', 'forbidden-value');
+      bindSlider('node-h', 'node-h-value');
+      bindSlider('node-w', 'node-w-value');
+      bindSlider('space-y', 'space-y-value');
+      bindSlider('space-x', 'space-x-value');
+
+      $('#symbols').on('change', updateForbiddenWords);
+      $('#forbidden-length').on('change', updateForbiddenWords);
+      $('#forbidden-words').on('change', updateCounts);
+
+      $('#essentialize').on('change', function () {
+        const essentialOn = $(this).is(':checked');
+        $('#minimize').prop('disabled', !essentialOn);
+        if (!essentialOn) $('#minimize').prop('checked', false);
+        generateGraph();
+      });
+
+      $('#minimize').on('change', function () {
+        const essentialOn = $('#essentialize').is(':checked');
+        if (!essentialOn) {
+          $(this).prop('checked', false); // 強制的にオフに戻す
+          return; // グラフも更新しない
+        }
+        generateGraph();
+      });
+
+      $('#save-btn').on('click', function () {
+        const formats = $('input[type="checkbox"]:checked').map((_, el) => el.id).get();
+        if (formats.length === 0) return alert('少なくとも1つの形式を選択してください。');
+        const query = formats.map(ext => `ext=${encodeURIComponent(ext)}`).join('&');
+        window.location.href = `/download?${query}`;
+      });
+
+      updateForbiddenWords();
+    });
+  </script>
 </body>
 </html>
