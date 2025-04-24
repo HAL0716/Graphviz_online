@@ -3,11 +3,13 @@ import subprocess
 import itertools
 import tempfile
 import zipfile
+import json
+
 from flask import Flask, render_template, request, send_file, jsonify
 from pdf2image import convert_from_bytes
 from dot2tex import dot2tex
+
 from src import PeriodicFiniteType
-import json
 
 # 初期化
 app = Flask(__name__)
@@ -77,10 +79,9 @@ def build_pft_with_data(data: dict) -> PeriodicFiniteType:
     """データを元にPeriodicFiniteTypeを生成"""
     alphabet = data.get('symbols', [])
     period = int(data.get('period', input_values['period']['default']))
-    forbidden_length = int(data.get('forbiddenLength', input_values['forbiddenLength']['default']))
     forbidden_words = data.get('forbiddenWords', [])
 
-    pft = PeriodicFiniteType(alphabet, period, forbidden_length, forbidden_words)
+    pft = PeriodicFiniteType(alphabet, period, forbidden_words)
     pft.set_adj_list()
 
     if data.get('essentialize', False):
