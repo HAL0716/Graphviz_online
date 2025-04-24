@@ -24,7 +24,7 @@ DOT_FILE = 'graph.dot'
 
 # 設定ファイル読み込み
 def load_input_values():
-    with open('input_values.json', 'r') as f:
+    with open('docs/input_values.json', 'r') as f:
         return json.load(f)
 
 input_values = load_input_values()

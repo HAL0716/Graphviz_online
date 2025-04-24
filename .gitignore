@@ -1,25 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+
 # 仮想環境
 venv/
+.venv/
+.env/
+
+# エディタ・OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
 
 # 一時ファイル
-*.pyc
-__pycache__/
-
-# ビルドアーティファクト
-*.log
+*.tmp
 *.bak
 *.swp
 
-# 出力ファイル（生成されたファイル）
-*.zip
-*.pdf
+# LaTeX 出力
+static/uploads/*.aux
+static/uploads/*.log
+static/uploads/*.fdb_latexmk
+static/uploads/*.fls
+static/uploads/*.pdf
+static/uploads/*.tex
+static/uploads/*.dot
+
+# 画像
 *.png
-*.tex
+!docs/demo.png
 
-# IDEやエディタの設定ファイル（VSCode、Sublime Textなど）
-.vscode/
-.idea/
-
-# アップロードファイル（一時保存ディレクトリ）
-static/uploads/*
-!static/uploads/.gitkeep
+# その他
+*.zip
+*.egg-info/

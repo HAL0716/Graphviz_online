@@ -96,19 +96,31 @@ http://localhost:5000
 ```
 your-repo/
 ├── app.py
-├── src/
-│   └── PeriodicFiniteType.py
-├── static/
-│   ├── css/
+├── input_values.json
+├── README.md
+├── requirements.txt
+├── src
+│   ├── __init__.py
+│   ├── node.py
+│   └── periodic_finite_type.py
+├── static
+│   ├── css
 │   │   └── style.css
-│   └── uploads/
-├── templates/
-│   └── index.html
-└── requirements.txt
+│   ├── js
+│   │   └── script.js
+│   └── uploads
+└── templates
+    └── index.html
 ```
 
 ---
 
-## 📸 出力
+## 📸 デモ
 
-生成されたグラフ画像は `static/uploads/graph.png` に保存されます。
+アプリの操作を示すデモ動画です。下のサムネイル画像をクリックすると、Google Drive 上の動画が再生されます。
+
+<p align="center">
+  <a href="https://drive.google.com/file/d/13ndHajAB62s-EdyCwBWWqwqzT4KsHJ6U/view?usp=drive_link" target="_blank">
+    <img src="docs/demo.png" alt="デモ動画" width="600">
+  </a>
+</p>
