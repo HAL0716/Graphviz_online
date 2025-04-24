@@ -44,13 +44,6 @@ def write_file(filename: str, content: str) -> None:
     with open(get_upload_path(filename), 'w') as f:
         f.write(content)
 
-def clean_aux_files():
-    """LaTeX中間ファイルを削除"""
-    for ext in ['aux', 'fdb_latexmk', 'fls', 'log', 'out']:
-        path = get_upload_path(f'graph.{ext}')
-        if os.path.exists(path):
-            os.remove(path)
-
 # ========== LaTeX / DOT 処理系 ==========
 
 def generate_tex(dot_code: str) -> None:
@@ -146,9 +139,11 @@ def generate_graph():
         generate_tex(dot_code)
         generate_pdf()
         convert_pdf_to_png()
-        clean_aux_files()
 
-        return jsonify({"image_url": f"/static/uploads/graph.png?{os.urandom(4).hex()}"})
+        return jsonify({
+            "image_url": f"/static/uploads/graph.png?{os.urandom(4).hex()}",
+            "eigen_value": pft.max_eigenvalue
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

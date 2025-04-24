@@ -1,3 +1,4 @@
+import numpy as np
 import math
 from itertools import cycle
 from collections import defaultdict, deque
@@ -146,6 +147,30 @@ class PeriodicFiniteType:
                         self.__removed_adjlist[src][label] = dst
 
         self.__active_adjlist = new_adjlist
+
+    @property
+    def max_eigenvalue(self) -> float:
+        # 1. ノードと連番の対応
+        active_nodes = {node for node, value in self.__nodes.items() if value == 1}
+        idx_map = {node: i for i, node in enumerate(active_nodes)}
+        n = len(idx_map)
+
+        if n == 0:  # 対象となるノードがない場合
+            return 0.0
+
+        # 2. 隣接行列を初期化
+        adj_matrix = np.zeros((n, n), dtype=int)
+
+        # 3. 隣接リストから隣接行列に変換（対象ノードのみを考慮）
+        for src, edges in self.__active_adjlist.items():
+            i = idx_map[src]
+            for dst in edges.values():
+                j = idx_map[dst]
+                adj_matrix[i, j] += 1  # 隣接関係があれば1を加算
+
+        # 4. 固有値を計算し、最大の実部を抽出
+        eigenvalues = np.linalg.eigvals(adj_matrix)
+        return np.max(np.real(eigenvalues))
 
     def dot(self, params: dict = None) -> str:
         if not self.__active_adjlist:

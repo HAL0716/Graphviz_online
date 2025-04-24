@@ -15,7 +15,6 @@
       <!-- パラメータ -->
       <div class="section-box">
         <h2>パラメータ</h2>
-
         <!-- シンボル数 -->
         <div>
           <label id="symbol-count-label" for="symbols" data-value="{{ input_values['symbols']['default'] }}">
@@ -131,6 +130,7 @@
           <div class="image-wrapper">
             <img id="graph-image" src="" alt="生成されたグラフ" />
           </div>
+          <label id="eigenvalue" data-value="0.00">最大固有値 : -</label>
           <div class="button-wrapper">
             <button id="save-btn">保存</button>
           </div>
@@ -142,131 +142,6 @@
   <!-- スクリプト -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  <script>
-    $(function () {
-      $('#symbols, #forbidden-words').select2({ placeholder: '選択してください', width: '100%' });
-      $('#symbols').val(['0', '1']).trigger('change');
-      $('#period, #forbidden-length').val(2);
-
-      function generateGraph() {
-        const data = {
-          symbols: $('#symbols').val(),
-          period: $('#period').val(),
-          forbiddenLength: $('#forbidden-length').val(),
-          forbiddenWords: $('#forbidden-words').val(),
-          essentialize: $('#essentialize').is(':checked'),
-          minimize: $('#minimize').is(':checked'),
-          nodeHeight: $('#node-h').val(),
-          nodeWidth: $('#node-w').val(),
-          spacingY: $('#space-y').val(),
-          spacingX: $('#space-x').val()
-        };
-
-        $.post({
-          url: '/generate',
-          contentType: 'application/json',
-          dataType: 'json',
-          data: JSON.stringify(data),
-          success(res) {
-            if (res.image_url) {
-              $('#graph-image').attr('src', res.image_url);
-            } else {
-              console.error('画像生成エラー:', res.error);
-            }
-          },
-          error() {
-            alert('グラフ生成中にエラーが発生しました');
-          }
-        });
-      }
-
-      function updateCounts() {
-        $('#symbol-count-label').text(`シンボル数 : ${$('#symbols').val().length}`);
-        $('#forbidden-count-label').text(`禁止語数 : ${$('#forbidden-words').val().length}`);
-        generateGraph();
-      }
-
-      function updateForbiddenWords() {
-        const data = {
-          symbols: $('#symbols').val(),
-          length: $('#forbidden-length').val()
-        }
-        $.post({
-          url: '/get_forbidden_words',
-          contentType: 'application/json',
-          dataType: 'json',
-          data: JSON.stringify(data),
-          success(data) {
-            const $fw = $('#forbidden-words').empty();
-            data.forEach(w => $fw.append(new Option(w, w)));
-            $fw.val([data[0]]).trigger('change');
-          },
-          error() {
-            alert('禁止語の取得に失敗しました');
-          }
-        });
-      }
-
-      function bindSlider(id, labelId, decimalPlaces = 1) {
-        $(`#${id}`).on('input', function () {
-          const value = parseFloat(this.value).toFixed(decimalPlaces);
-          const labelBase = $(`#${labelId}`).text().split(':')[0];
-          $(`#${labelId}`).text(`${labelBase} : ${value}`);
-          $(`#${labelId}`).attr('data-value', value);
-          generateGraph();
-        });
-      }
-
-      // イベントバインド
-      [
-        { id: 'period', decimals: 0 },
-        { id: 'forbidden-length', decimals: 0 },
-        { id: 'node-h', decimals: 1 },
-        { id: 'node-w', decimals: 1 },
-        { id: 'space-y', decimals: 1 },
-        { id: 'space-x', decimals: 1 },
-      ].forEach(({ id, decimals }) => {
-        bindSlider(id, `${id}-label`, decimals);
-      });
-
-
-      $('#symbols').on('change', updateForbiddenWords);
-      $('#forbidden-length').on('change', updateForbiddenWords);
-      $('#forbidden-words').on('change', updateCounts);
-
-      $('#essentialize').on('change', function () {
-        const on = $(this).is(':checked');
-        $('#minimize').prop('disabled', !on);
-        if (!on) $('#minimize').prop('checked', false);
-        generateGraph();
-      });
-
-      $('#minimize').on('change', function () {
-        if (!$('#essentialize').is(':checked')) {
-          $(this).prop('checked', false);
-          return;
-        }
-        generateGraph();
-      });
-
-      $('#save-btn').on('click', function () {
-        const formats = $('input[type="checkbox"]:checked').map((_, el) => el.id).get();
-        if (!formats.length) return alert('少なくとも1つの形式を選択してください。');
-        location.href = `/download?${formats.map(f => `ext=${encodeURIComponent(f)}`).join('&')}`;
-      });
-
-      updateForbiddenWords();
-
-      // 高さ調整
-      function adjustMainHeight() {
-        const side = document.querySelector('.side');
-        const main = document.querySelector('.main');
-        if (side && main) main.style.height = `${side.getBoundingClientRect().height}px`;
-      }
-
-      window.addEventListener('load', adjustMainHeight);
-      window.addEventListener('resize', adjustMainHeight);
-    });
-  </script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

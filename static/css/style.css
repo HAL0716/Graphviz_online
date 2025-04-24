@@ -190,6 +190,12 @@ label {
 	display: block;
 }
 
+.graph-content label {
+	margin-top: 10px;
+	align-self: flex-end;
+	position: static;
+}
+
 /* ===== 保存ボタン ===== */
 .button-wrapper {
 	margin-top: 10px;
