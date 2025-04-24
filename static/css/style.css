@@ -1,169 +1,219 @@
-/* 基本スタイル */
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: Arial, sans-serif;
-    overflow: hidden;
+/* ===== ベーススタイル ===== */
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	font-family: Arial, sans-serif;
+	overflow: hidden;
 }
 
+/* ===== 見出し ===== */
 h1 {
-    padding: 0px 20px;
+	margin: 0;
+	padding: 0 20px;
+	height: 60px;
+	display: flex;
+	align-items: center;
+	font-size: 30px;
+	width: 100%;
+	text-align: center;
 }
 
+h2 {
+	margin: 0;
+}
+
+label {
+	font-size: 20px;
+	font-weight: normal;
+}
+
+/* ===== レイアウト構造 ===== */
 .container {
-    display: flex;
-    height: calc(100vh - 60px);
-}
-
-.side, .main {
-    padding: 0px 20px;
-    box-sizing: border-box;
+	display: flex;
+	height: auto;
 }
 
 .side {
-    width: 400px;
-    padding: 1rem;
-    box-sizing: border-box;
+	width: 500px;
+	padding: 0 10px 0 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	box-sizing: border-box;
+	flex-shrink: 0;
 }
 
-/* メインセクション */
 .main {
-    display: flex;
-    flex-direction: column;  /* 縦並びにする */
-    align-items: flex-start; /* デフォルトで左寄せ */
-    padding: 20px;
+	flex: 1;
+	padding: 0 20px 0 10px;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
 }
 
-/* サイド内要素の共通スタイル */
-.side label, .side span {
-    font-size: 20px;
-    font-weight: normal;
+/* ===== セクションボックス ===== */
+.section-box {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 20px;
+	border: 2px solid #ccc;
+	border-radius: 20px;
+	background-color: #f9f9f9;
+	box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
 }
 
+.main .section-box {
+	height: 100%;
+}
+
+/* ===== フォーム要素（スライダー・セレクト） ===== */
 .side input[type="range"],
 .side select {
-    width: 100%;
+	width: 100%;
 }
 
-.side > div:not(:last-child) {
-    margin-bottom: 20px;
-}
-
-/* オプショングループ（mode, file-format など） */
+/* ===== オプション設定：共通 ===== */
 .option-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    align-items: center;
-}
-
-.option-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.option-label {
-    padding-left: 0.5rem;
-    width: 70px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	align-items: center;
 }
 
 .option-group-vertical {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
 }
-  
+
+.option-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
 .input-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    align-items: center;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	align-items: center;
 }
-  
+
 .input-row .option-item {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
-/* トグルボタン */
+.option-label {
+	padding-left: 0.5rem;
+	width: 70px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* ===== トグルボタン ===== */
 .toggle-button-2 {
-    display: inline-block;
-    position: relative;
-    width: 60px;
-    height: 30px;
-    border-radius: 50px;
-    border: 3px solid #dddddd;
-    box-sizing: content-box;
-    cursor: pointer;
-    transition: border-color .4s;
-    flex-shrink: 0;
-}
-
-.toggle-button-2:has(:checked) {
-    border-color: #4bd865;
+	display: inline-block;
+	position: relative;
+	width: 60px;
+	height: 30px;
+	border-radius: 50px;
+	border: 3px solid #dddddd;
+	box-sizing: content-box;
+	cursor: pointer;
+	transition: border-color 0.4s;
+	flex-shrink: 0;
 }
 
 .toggle-button-2::after {
-    position: absolute;
-    top: 50%;
-    left: 5px;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background-color: #dddddd;
-    content: '';
-    transition: left .4s;
+	position: absolute;
+	top: 50%;
+	left: 5px;
+	transform: translateY(-50%);
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background-color: #dddddd;
+	content: '';
+	transition: left 0.4s;
+}
+
+.toggle-button-2:has(:checked) {
+	border-color: #4bd865;
 }
 
 .toggle-button-2:has(:checked)::after {
-    left: 35px;
-    background-color: #4bd865;
+	left: 35px;
+	background-color: #4bd865;
 }
 
 .toggle-button-2 input {
-    display: none;
+	display: none;
 }
 
-/* ラベル全体共通 */
-label {
-    font-size: 16px;
-    display: flex;
-    align-items: center;
+/* ===== グラフ表示エリア ===== */
+.graph-box {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	overflow: hidden;
 }
 
-/* 画像のスタイル */
+.graph-content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	padding: 20px;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+.image-wrapper {
+	width: 100%;
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+}
+
 #graph-image {
-    max-width: 100%;      /* 画像の横幅を親要素に合わせて最大化 */
-    max-height: 80vh;     /* 画像の高さを画面の80%に制限 */
-    object-fit: contain;  /* 縦横比を保ちながら画像が収まるように調整 */
-    margin-bottom: 20px;  /* 画像とボタンの間にスペース */
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+	display: block;
 }
 
-/* 保存ボタンのスタイル */
+/* ===== 保存ボタン ===== */
+.button-wrapper {
+	margin-top: 10px;
+	align-self: flex-end;
+	position: static;
+}
+
 #save-btn {
-    width: 120px;
-    height: 50px;
-    border-radius: 30px;  /* 丸みを増して柔らかい印象に */
-    background-color: #4CAF50;  /* 明るい緑色 */
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    transition: background-color 0.3s ease, transform 0.3s ease;  /* スムーズなトランジション */
-    margin-left: auto; /* 右寄せ */
+	width: 120px;
+	height: 50px;
+	border-radius: 30px;
+	background-color: #4CAF50;
+	color: white;
+	border: none;
+	cursor: pointer;
+	font-size: 18px;
+	transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 #save-btn:hover {
-    background-color: #45a049;  /* 少し暗い緑に */
-    transform: scale(1.05);  /* ホバー時にボタンが少し大きくなる */
+	background-color: #45a049;
+	transform: scale(1.2);
 }
 
 #save-btn:active {
-    transform: scale(1);  /* クリック時に元のサイズに戻す */
+	transform: scale(1.0);
 }

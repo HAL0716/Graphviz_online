@@ -10,105 +10,143 @@
 <body>
   <h1>PFT Graphics</h1>
   <div class="container">
+    <!-- サイドバー -->
     <div class="side">
-      <h2>パラメータ</h2>
-      
-      <div>
-        <label for="symbols">シンボル数 : <span id="symbol-count">2</span></label>
-        <select id="symbols" name="symbols[]" multiple="multiple">
-          {% for symbol in symbols %}
-            <option value="{{ symbol }}">{{ symbol }}</option>
+      <!-- パラメータ -->
+      <div class="section-box">
+        <h2>パラメータ</h2>
+
+        <!-- シンボル数 -->
+        <div>
+          <label id="symbol-count-label" for="symbols" data-value="{{ input_values['symbols']['default'] }}">
+            シンボル数 : {{ input_values['symbols']['default'] }}
+          </label>
+          <select id="symbols" name="symbols[]" multiple="multiple">
+            {% for symbol in symbols %}
+              <option value="{{ symbol }}">{{ symbol }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- 周期 -->
+        <div>
+          <label id="period-label" for="period" data-value="{{ input_values['period']['default'] }}">
+            周期 : {{ input_values['period']['default'] }}
+          </label>
+          <input type="range" id="period" min="{{ input_values['period']['min'] }}" max="{{ input_values['period']['max'] }}" value="{{ input_values['period']['default'] }}">
+        </div>
+
+        <!-- 禁止語長 -->
+        <div>
+          <label id="forbidden-length-label" for="forbidden-length" data-value="{{ input_values['forbiddenLength']['default'] }}">
+            禁止語長 : {{ input_values['forbiddenLength']['default'] }}
+          </label>
+          <input type="range" id="forbidden-length" min="{{ input_values['forbiddenLength']['min'] }}" max="{{ input_values['forbiddenLength']['max'] }}" value="{{ input_values['forbiddenLength']['default'] }}">
+        </div>
+
+        <!-- 禁止語数 -->
+        <div>
+          <label id="forbidden-count-label" for="forbidden-words" data-value="1">禁止語数 : 1</label>
+          <select id="forbidden-words" name="forbidden-words[]" multiple="multiple"></select>
+        </div>
+      </div>
+
+      <!-- 描画設定 -->
+      <div class="section-box">
+        <h2>描画設定</h2>
+
+        <div class="option-group">
+          <div class="option-item">
+            <label class="option-label" for="essentialize">本質化</label>
+            <label class="toggle-button-2">
+              <input type="checkbox" id="essentialize" value="essentialize" checked/>
+            </label>
+          </div>
+          <div class="option-item">
+            <label class="option-label" for="minimize">最小化</label>
+            <label class="toggle-button-2">
+              <input type="checkbox" id="minimize" value="minimize" checked/>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label>ノードの大きさ</label>
+          <div class="input-row">
+            <div class="option-item">
+              <label id="node-h-label" data-value="{{ input_values['nodeSize']['height']['default'] }}">
+                縦 : {{ input_values['nodeSize']['height']['default'] }}
+              </label>
+              <input type="range" id="node-h" min="{{ input_values['nodeSize']['height']['min'] }}" max="{{ input_values['nodeSize']['height']['max'] }}" step="0.1" value="{{ input_values['nodeSize']['height']['default'] }}">
+            </div>
+            <div class="option-item">
+              <label id="node-w-label" data-value="{{ input_values['nodeSize']['width']['default'] }}">
+                横 : {{ input_values['nodeSize']['width']['default'] }}
+              </label>
+              <input type="range" id="node-w" min="{{ input_values['nodeSize']['width']['min'] }}" max="{{ input_values['nodeSize']['width']['max'] }}" step="0.1" value="{{ input_values['nodeSize']['width']['default'] }}">
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label>ノードの間隔</label>
+          <div class="input-row">
+            <div class="option-item">
+              <label id="space-y-label" data-value="{{ input_values['nodeSpacing']['vertical']['default'] }}">
+                縦 : {{ input_values['nodeSpacing']['vertical']['default'] }}
+              </label>
+              <input type="range" id="space-y" min="{{ input_values['nodeSpacing']['vertical']['min'] }}" max="{{ input_values['nodeSpacing']['vertical']['max'] }}" step="0.1" value="{{ input_values['nodeSpacing']['vertical']['default'] }}">
+            </div>
+            <div class="option-item">
+              <label id="space-x-label" data-value="{{ input_values['nodeSpacing']['horizontal']['default'] }}">
+                横 : {{ input_values['nodeSpacing']['horizontal']['default'] }}
+              </label>
+              <input type="range" id="space-x" min="{{ input_values['nodeSpacing']['horizontal']['min'] }}" max="{{ input_values['nodeSpacing']['horizontal']['max'] }}" step="0.1" value="{{ input_values['nodeSpacing']['horizontal']['default'] }}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 保存形式 -->
+      <div class="section-box">
+        <h2>保存形式</h2>
+        <div class="option-group">
+          {% for fmt in input_values['outputFormats'] %}
+            <div class="option-item">
+              <label class="option-label" for="{{ fmt }}">{{ fmt }}</label>
+              <label class="toggle-button-2">
+                <input type="checkbox" id="{{ fmt }}" value="{{ fmt }}" checked/>
+              </label>
+            </div>
           {% endfor %}
-        </select>
-      </div>
-
-      <div>
-        <label for="period">周期 : <span id="period-value">2</span></label>
-        <input type="range" id="period" min="2" max="10" value="2">
-      </div>
-
-      <div>
-        <label for="forbidden-length">禁止語長 : <span id="forbidden-value">2</span></label>
-        <input type="range" id="forbidden-length" min="2" max="10" value="2">
-      </div>
-
-      <div>
-        <label for="forbidden-words">禁止語数 : <span id="forbidden-count">1</span></label>
-        <select id="forbidden-words" name="forbidden-words[]" multiple="multiple"></select>
-      </div>
-
-      <h2>描画設定</h2>
-
-      <div class="option-group">
-        <div class="option-item">
-          <label class="option-label" for="essentialize">本質化</label>
-          <label class="toggle-button-2">
-            <input type="checkbox" id="essentialize" value="essentialize" />
-          </label>
         </div>
-        <div class="option-item">
-          <label class="option-label" for="minimize">最小化</label>
-          <label class="toggle-button-2">
-            <input type="checkbox" id="minimize" value="minimize" />
-          </label>
-        </div>
-      </div>
-
-      <div class="option-group-vertical">
-        <label>ノードの大きさ</label>
-        <div class="input-row">
-          <div class="option-item">
-            <label class="option-label">縦: <span id="node-h-value">0.4</span></label>
-            <input type="range" id="node-h" min="0.2" max="1.0" step="0.1" value="0.4">
-          </div>
-          <div class="option-item">
-            <label class="option-label">横: <span id="node-w-value">0.6</span></label>
-            <input type="range" id="node-w" min="0.2" max="2.0" step="0.1" value="0.6">
-          </div>
-        </div>
-
-        <label>ノードの間隔</label>
-        <div class="input-row">
-          <div class="option-item">
-            <label class="option-label">縦: <span id="space-y-value">1.0</span></label>
-            <input type="range" id="space-y" min="0.2" max="2.0" step="0.1" value="1.0">
-          </div>
-          <div class="option-item">
-            <label class="option-label">横: <span id="space-x-value">1.0</span></label>
-            <input type="range" id="space-x" min="0.2" max="2.0" step="0.1" value="1.0">
-          </div>
-        </div>
-      </div>
-
-      <h2>保存形式</h2>
-      <div class="option-group">
-        {% for fmt in ['dot', 'tex', 'pdf', 'png'] %}
-        <div class="option-item">
-          <label class="option-label" for="{{ fmt }}">{{ fmt }}</label>
-          <label class="toggle-button-2">
-            <input type="checkbox" id="{{ fmt }}" value="{{ fmt }}" checked/>
-          </label>
-        </div>
-        {% endfor %}
       </div>
     </div>
 
+    <!-- メイン -->
     <div class="main">
-      <h2>グラフ</h2>
-      <img id="graph-image" src="" alt="生成されたグラフ" style="max-width: 100%; height: auto;" />
-      <button id="save-btn">保存</button>
+      <div class="section-box graph-box">
+        <h2>グラフ</h2>
+        <div class="graph-content">
+          <div class="image-wrapper">
+            <img id="graph-image" src="" alt="生成されたグラフ" />
+          </div>
+          <div class="button-wrapper">
+            <button id="save-btn">保存</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- スクリプト -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script>
-    $(document).ready(function () {
+    $(function () {
       $('#symbols, #forbidden-words').select2({ placeholder: '選択してください', width: '100%' });
       $('#symbols').val(['0', '1']).trigger('change');
       $('#period, #forbidden-length').val(2);
-      $('#period-value').text('2');
-      $('#forbidden-value').text('2');
 
       function generateGraph() {
         const data = {
@@ -124,97 +162,110 @@
           spacingX: $('#space-x').val()
         };
 
-        $.ajax({
+        $.post({
           url: '/generate',
-          type: 'POST',
           contentType: 'application/json',
           dataType: 'json',
           data: JSON.stringify(data),
-          success: function (res) {
+          success(res) {
             if (res.image_url) {
               $('#graph-image').attr('src', res.image_url);
             } else {
               console.error('画像生成エラー:', res.error);
             }
           },
-          error: function () {
+          error() {
             alert('グラフ生成中にエラーが発生しました');
           }
         });
       }
 
       function updateCounts() {
-        $('#symbol-count').text($('#symbols').val()?.length || 0);
-        $('#forbidden-count').text($('#forbidden-words').val()?.length || 0);
+        $('#symbol-count-label').text(`シンボル数 : ${$('#symbols').val().length}`);
+        $('#forbidden-count-label').text(`禁止語数 : ${$('#forbidden-words').val().length}`);
         generateGraph();
       }
 
       function updateForbiddenWords() {
-        const payload = {
+        const data = {
           symbols: $('#symbols').val(),
           length: $('#forbidden-length').val()
-        };
-
-        $.ajax({
+        }
+        $.post({
           url: '/get_forbidden_words',
-          type: 'POST',
           contentType: 'application/json',
           dataType: 'json',
-          data: JSON.stringify(payload),
-          success: function (data) {
+          data: JSON.stringify(data),
+          success(data) {
             const $fw = $('#forbidden-words').empty();
-            data.forEach(word => $fw.append(new Option(word, word)));
+            data.forEach(w => $fw.append(new Option(w, w)));
             $fw.val([data[0]]).trigger('change');
-            updateCounts();
           },
-          error: function () {
+          error() {
             alert('禁止語の取得に失敗しました');
           }
         });
       }
 
-      function bindSlider(id, valueId) {
+      function bindSlider(id, labelId, decimalPlaces = 1) {
         $(`#${id}`).on('input', function () {
-          $(`#${valueId}`).text(this.value);
+          const value = parseFloat(this.value).toFixed(decimalPlaces);
+          const labelBase = $(`#${labelId}`).text().split(':')[0];
+          $(`#${labelId}`).text(`${labelBase} : ${value}`);
+          $(`#${labelId}`).attr('data-value', value);
           generateGraph();
         });
       }
 
-      bindSlider('period', 'period-value');
-      bindSlider('forbidden-length', 'forbidden-value');
-      bindSlider('node-h', 'node-h-value');
-      bindSlider('node-w', 'node-w-value');
-      bindSlider('space-y', 'space-y-value');
-      bindSlider('space-x', 'space-x-value');
+      // イベントバインド
+      [
+        { id: 'period', decimals: 0 },
+        { id: 'forbidden-length', decimals: 0 },
+        { id: 'node-h', decimals: 1 },
+        { id: 'node-w', decimals: 1 },
+        { id: 'space-y', decimals: 1 },
+        { id: 'space-x', decimals: 1 },
+      ].forEach(({ id, decimals }) => {
+        bindSlider(id, `${id}-label`, decimals);
+      });
+
 
       $('#symbols').on('change', updateForbiddenWords);
       $('#forbidden-length').on('change', updateForbiddenWords);
       $('#forbidden-words').on('change', updateCounts);
 
       $('#essentialize').on('change', function () {
-        const essentialOn = $(this).is(':checked');
-        $('#minimize').prop('disabled', !essentialOn);
-        if (!essentialOn) $('#minimize').prop('checked', false);
+        const on = $(this).is(':checked');
+        $('#minimize').prop('disabled', !on);
+        if (!on) $('#minimize').prop('checked', false);
         generateGraph();
       });
 
       $('#minimize').on('change', function () {
-        const essentialOn = $('#essentialize').is(':checked');
-        if (!essentialOn) {
-          $(this).prop('checked', false); // 強制的にオフに戻す
-          return; // グラフも更新しない
+        if (!$('#essentialize').is(':checked')) {
+          $(this).prop('checked', false);
+          return;
         }
         generateGraph();
       });
 
       $('#save-btn').on('click', function () {
         const formats = $('input[type="checkbox"]:checked').map((_, el) => el.id).get();
-        if (formats.length === 0) return alert('少なくとも1つの形式を選択してください。');
-        const query = formats.map(ext => `ext=${encodeURIComponent(ext)}`).join('&');
-        window.location.href = `/download?${query}`;
+        if (!formats.length) return alert('少なくとも1つの形式を選択してください。');
+        location.href = `/download?${formats.map(f => `ext=${encodeURIComponent(f)}`).join('&')}`;
       });
 
       updateForbiddenWords();
+
+      // 高さ調整
+      function adjustMainHeight() {
+        const side = document.querySelector('.side');
+        const main = document.querySelector('.main');
+        if (side && main) main.style.height = `${side.getBoundingClientRect().height}px`;
+      }
+
+      window.addEventListener('load', adjustMainHeight);
+      window.addEventListener('resize', adjustMainHeight);
     });
   </script>
 </body>

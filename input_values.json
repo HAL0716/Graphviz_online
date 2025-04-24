@@ -1,0 +1,43 @@
+{
+	"symbols": {
+		"min": 1,
+		"max": 36,
+		"default": 2
+	},
+	"period": {
+		"min": 2,
+		"max": 10,
+		"default": 2
+	},
+	"forbiddenLength": {
+		"min": 2,
+		"max": 10,
+		"default": 2
+	},
+	"nodeSize": {
+		"height": {
+			"min": 0.2,
+			"max": 1.0,
+			"default": 0.4
+		},
+		"width": {
+			"min": 0.2,
+			"max": 2.0,
+			"default": 0.6
+		}
+	},
+	"nodeSpacing": {
+		"vertical": {
+			"min": 0.2,
+			"max": 2.0,
+			"default": 1.0
+		},
+		"horizontal": {
+			"min": 0.2,
+			"max": 2.0,
+			"default": 1.0
+		}
+	},
+	"outputFormats": ["dot", "tex", "pdf", "png"]
+}
+  
